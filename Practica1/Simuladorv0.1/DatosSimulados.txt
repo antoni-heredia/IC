@@ -1,0 +1,53 @@
+(bombilla salon 460)
+(bombilla cocina 270)
+(bombilla pasillo 230)
+(luminosidad salon 32)
+(luminosidad cocina 19)
+(luminosidad pasillo 12)
+
+
+;;; Persona sola en salon desde las 10 hasta las 11:10, sale a las 11:10 al  pasillo y despues a la cocina donde permanece hasta las 11:30 y vuelve
+;;; al salon
+
+
+(manejoluces cocina)
+(manejoluces pasillo)
+
+
+; Está en el salón
+(datosensor 10 0 1 movimiento salon on)
+
+; Enciende la luz del salon
+(datosensor 10 0 0 pulsador salon on)
+
+; Apaga la luz del salon y sale al pasillo
+(datosensor 11 10 14 pulsador salon off)
+(datosensor  11 10 15  movimiento pasillo on)
+
+
+;Entra en la cocina
+(datosensor  11 10 17  movimiento cocina on)
+
+
+; salon sin movimiento
+(datosensor  11 11 1  movimiento salon off)
+
+; pasillo sin movimiento
+(datosensor  11 11 15  movimiento pasillo off)
+
+
+; Sale al pasillo
+(datosensor  11 30 43  movimiento pasillo on)
+
+; Enciende la luz del salon
+(datosensor 11 30 44 pulsador salon on)
+
+;Entra en el salon
+(datosensor  11 30 45  movimiento salon on)
+
+; pasillo sin movimiento
+(datosensor  11 31 43  movimiento pasillo off)
+
+;cocina sin movimiento
+(datosensor  11 31 17  movimiento cocina off)
+

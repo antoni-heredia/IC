@@ -1,0 +1,49 @@
+Si la habitacion esta vacia y la luz encendida, apagar la luz.
+Si la habitacion no tiene suficiente luz y esta no esta vacia se enciende.
+Si la habitacion tiene mucha luminosidad y la luz esta encendida, se apaga la luz.
+Mucha luminosidad es el doble de la necesaria.
+Poca es menos de la necesaria.
+Para saber si esta vacia utiliza tres reglas utiliza tres estados.
+Estado 1 activa->no vacia
+Estado 2 inactiva->Vacia
+Estado 3 parece inactiva->No esta vacia
+
+Como llegar a Estado 1:
+	Sensor de movimiento esta en ON
+Como llegar a Estado 3:
+	Sensor de de movimiento off 
+Como llegar al estado 2:
+	Cuando esta en estado 3 durante 10 segundos
+
+Utiliza mas argumentos para hacer el paso de una forma mas segura, utilizando
+el concepto de si ha habido un paso. Cuando se dispara el sensor de una habitacion
+Dedude que se ha podido realizar un paso. Es decir si estas en una habitacion, 
+se ha podido realizar un paso del pasillo a la habitacion. Cuando solo hay
+un posible paso. 
+
+Se ha producido un paso y un psoible paso, diferencias. 
+Una habitacon esta activa y tiene dos habitaciones contiguas y que estan contiguas entre si
+Si se activa una de esas habitaciones se activa hay un paso seguro, si hay
+dos activaciones es que es un posible paso. (No estoy seguro=
+
+
+Si ha habido un paso reciente de una habitacion en el estado 3 (parece inactiva)
+pasa a estado 2 (inactiva)
+Reciente->3 segundos
+
+Si una habitacion parece inactiva desde hace 3 segundos y no hay ningun posible paso
+desde ella, la habitacion pasa a activa. A excepcion de las habitacion que tienen puerta de salida de la casa.
+
+
+Preguntar luminosidad de habitaciones a Jose.
+
+Los posibles pasos se eliminan a los 3 segundos.
+
+
+El notas lo ha implementado con 10 reglas sencillas. Es un flipado. 
+
+3 reglas simples para decidir si enciende o apaga
+3 reglas para decidir el estado de una habitaicon
+2 reglas para decidir si se produce un paso o posible paso
+2 reglas para actualizar el estado de forma inteligente.
+
