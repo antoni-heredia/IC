@@ -227,8 +227,6 @@
     (valor_registrado ?tmp ?tipo ?habitacion ?v)
     (not(ultimo_registro ?tipo ?habitacion ?temp))
     =>
-    (printout t "Insertado ultimo registro" crlf) 
-
     (assert(ultimo_registro ?tipo ?habitacion ?tmp))
 )
 
@@ -302,62 +300,25 @@
 )
 
 (defrule obtenerInforme2
-	?Borrar <- (registroimpreso ?tiempo ?tipo ?h ?valor) 
+	?borrar <- (registroimpreso ?tiempo ?tipo ?h ?valor) 
 	(valor_registrado ?t&~?tiempo ?tipo2 ?h ?valor2)
 	(valor_registrado ?t2&:(and (>= ?t2 ?t) (< ?t2 ?tiempo)) ?tipo3 ?h ?valor3)
 =>
-	(retract ?Borrar) 
+	(retract ?borrar) 
 	(assert (registroimpreso ?t2 ?tipo3 ?h ?valor3))
 	(printout t "Tiempo: " ?t2  " Valor: " ?valor3 " Tipo: " ?tipo3 crlf) 
 	)
 
 (defrule obtenerInforme3
-	?Borrar <- (registroimpreso ?t1 ?tipo ?h ?valor) ;
+	?borrar <- (registroimpreso ?t1 ?tipo ?h ?valor) ;
 =>
-	(retract ?Borrar)
+	(retract ?borrar)
 )
 
-(defrule encenderLuzSiNoExiste
-    (Manejo_inteligente_luces ?hab)
-    (ultimo_registro movimiento ?hab ?tiempo)    
-    (ultima_activacion movimiento ?hab ?t)
-    (not(accion pulsador_luz ?hab encender))
-    (test(eq ?tiempo ?t))
-    =>
-    (assert (accion pulsador_luz ?hab encender))
-	(printout t "Luz habitacion encendida" crlf) 
+
+(defrule obtenerInforme3
+	?borrar <- (registroimpreso ?t1 ?tipo ?h ?valor) ;
+=>
+	(retract ?borrar)
 )
 
-(defrule encenderLuzSiEstaApagada
-    (Manejo_inteligente_luces ?hab)
-    (ultimo_registro movimiento ?hab ?tiempo)    
-    (ultima_activacion movimiento ?hab ?t)
-    ?borrar<-(accion pulsador_luz ?hab off)
-    (test(eq ?tiempo ?t))
-    =>
-    (retract ?borrar)
-    (assert (accion pulsador_luz ?hab encender))
-	(printout t "Luz habitacion encendida" crlf) 
-)
-
-(defrule pareceVacia
-    (Manejo_inteligente_luces ?hab)
-    (ultimo_registro movimiento ?hab ?tiempo)    
-    (ultima_desactivacion movimiento ?hab ?t)
-    (test(eq ?tiempo ?t))
-    (not (pareceVacia ?hab ?cualquiertiempo))
-    =>
-    (assert (pareceVacia ?hab ?t))
-	(printout t "La habitacion parece vacia a las " ?t crlf) 
-)
-
-(defrule comprobacionTiempoVacia
-    (Manejo_inteligente_luces ?hab)
-    ?borrar <- (pareceVacia ?hab ?tmp)
-    (valor_registrado ?t movimiento ?hab off)
-    (test(>  (- ?t ?tmp ) 20))
-    =>
-    (assert (accion pulsador_luz ?hab apagar))
-    (retract ?borrar)
-	(printout t "Luz habitacion apagada" crlf) 
-)
