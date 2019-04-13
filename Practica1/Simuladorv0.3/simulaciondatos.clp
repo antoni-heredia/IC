@@ -28,18 +28,19 @@
 (test (<= (totalsegundos ?h ?m ?s) (totalsegundos ?h1 ?m1 ?s1)))
 =>
 (assert (valor luminosidad ?habitacion ?l))
-(printout t  ?h1 ":" ?m1 ":" ?s1 ": Luminosidad " ?habitacion " " ?l crlf)
+(printout t  ?h1 ":" ?m1 ":" ?s1 ": sensor luminosidad " ?habitacion " " ?l crlf)
 )
 
 (defrule pulsadorluzon
 (declare (salience 10000))
-(datosensor  ?h ?m ?s  pulsador ?habitacion on)
+?f <- (datosensor  ?h ?m ?s  pulsador ?habitacion on)
 (hora_actual ?h1)
 (minutos_actual ?m1)
 (segundos_actual ?s1)
 (test (<= (totalsegundos ?h ?m ?s) (totalsegundos ?h1 ?m1 ?s1)))
 =>
-(assert (accion pulsador_luz ?habitacion encender))
+(assert (accion pulsador_luz_persona ?habitacion encender))
+(retract ?f)
 )
 
 (defrule pulsadorluzoff
@@ -50,7 +51,7 @@
 (segundos_actual ?s1)
 (test (<= (totalsegundos ?h ?m ?s) (totalsegundos ?h1 ?m1 ?s1)))
 =>
-(assert (accion pulsador_luz ?habitacion apagar))
+(assert (accion pulsador_luz_persona ?habitacion apagar))
 )
 
 
@@ -97,7 +98,7 @@
 (hora_actual ?h1)
 (minutos_actual ?m1)
 (segundos_actual ?s1)
-(test (<= (totalsegundos ?h1 ?m1 ?s1) (totalsegundos ?h ?m ?s)))
+(test (>= (totalsegundos ?h1 ?m1 ?s1) (totalsegundos ?h ?m ?s)))
 =>
 (assert (informe ?habitacion))
 (retract ?f)
@@ -117,7 +118,8 @@
 ?g <- (luminosidad ?habitacion ?l)
 (bombilla ?habitacion ?l2)
 =>
-(assert (datosensor ?*hora* ?*minutos* ?*segundos* pulsador ?habitacion on))
+(printout t "SISTEMA DECIDE ENCENDER LUZ DE " ?habitacion crlf)
+(assert (datosensor ?*hora* ?*minutos* ?*segundos* estadoluz ?habitacion on))
 (assert (luminosidad ?habitacion (+ ?l ?l2)))
 (retract ?f ?g)
 )
@@ -128,8 +130,33 @@
 ?g <- (luminosidad ?habitacion ?l)
 (bombilla ?habitacion ?l2)
 =>
-(assert (datosensor ?*hora* ?*minutos* ?*segundos* pulsador ?habitacion off))
-(assert (luminosidad ?habitacion (min 5 (- ?l ?l2))))
+(printout t "SISTEMA DECIDE APAGAR LUZ DE " ?habitacion crlf)
+(assert (datosensor ?*hora* ?*minutos* ?*segundos* estadoluz ?habitacion off))
+(assert (luminosidad ?habitacion (max 5 (- ?l ?l2))))
+(retract ?f ?g)
+)
+
+(defrule encenderluzpersona
+(declare (salience 10000))
+?f <-  (accion pulsador_luz_persona ?habitacion encender)
+?g <- (luminosidad ?habitacion ?l)
+(bombilla ?habitacion ?l2)
+=>
+(printout t "UNA PERSONA HA ENCENDIDO LA LUZ DE " ?habitacion crlf)
+(assert (datosensor ?*hora* ?*minutos* ?*segundos* estadoluz ?habitacion on))
+(assert (luminosidad ?habitacion (+ ?l ?l2)))
+(retract ?f ?g)
+)
+
+(defrule apagarluzpersona
+(declare (salience 10000))
+?f <-  (accion pulsador_luz_persona ?habitacion apagar)
+?g <- (luminosidad ?habitacion ?l)
+(bombilla ?habitacion ?l2)
+=>
+(printout t "UNA PERSONA HA  APAGADO LA LUZ DE " ?habitacion crlf)
+(assert (datosensor ?*hora* ?*minutos* ?*segundos* estadoluz ?habitacion off))
+(assert (luminosidad ?habitacion (max 5 (- ?l ?l2))))
 (retract ?f ?g)
 )
 

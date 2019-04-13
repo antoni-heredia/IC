@@ -250,10 +250,10 @@
     (test (eq ?v on ))
     (ultima_desactivacion ?a ?b ?c)
     ?ultimo <- (ultima_activacion ?tipo ?habitacion ?tiemp)
-    (test (neq ?t ?tiemp ))
-    (test (>= ?t ?tiemp ))
+    (test (neq ?t ?c ))
+    (test (> ?t ?c ))
     (test (neq ?c ?tiemp  ))
-    (test (>= ?c ?tiemp  ))
+    (test (> ?c ?tiemp  ))
     =>
     (retract ?ultimo)
     (assert(ultima_activacion movimiento ?habitacion ?t))
@@ -274,10 +274,10 @@
     (test (eq ?v off ))
     (ultima_activacion ?a ?b ?c)
     ?ultimo <- (ultima_desactivacion ?tipo ?habitacion ?tiemp)
-    (test (neq ?t ?tiemp ))
-    (test (>= ?t ?tiemp ))
+    (test (neq ?t ?c ))
+    (test (> ?t ?c ))
     (test (neq ?c ?tiemp  ))
-    (test (>= ?c ?tiemp  ))
+    (test (> ?c ?tiemp  ))
     =>
     (retract ?ultimo)
     (assert(ultima_desactivacion movimiento ?habitacion ?t))
@@ -321,43 +321,130 @@
     (Manejo_inteligente_luces ?hab)
     (ultimo_registro movimiento ?hab ?tiempo)    
     (ultima_activacion movimiento ?hab ?t)
-    (not(accion pulsador_luz ?hab encender))
-    (test(eq ?tiempo ?t))
+    (not(estadoLuz ?hab encendida))
+    (not(estadoLuz ?hab apagada))
+
+    (test(= ?tiempo ?t))
     =>
     (assert (accion pulsador_luz ?hab encender))
-	(printout t "Luz habitacion encendida" crlf) 
 )
 
 (defrule encenderLuzSiEstaApagada
     (Manejo_inteligente_luces ?hab)
     (ultimo_registro movimiento ?hab ?tiempo)    
     (ultima_activacion movimiento ?hab ?t)
-    ?borrar<-(accion pulsador_luz ?hab off)
-    (test(eq ?tiempo ?t))
+    (not(estadoLuz ?hab encendida))
+    (estadoLuz ?hab apagada)
+    (test(= ?tiempo ?t))
     =>
-    (retract ?borrar)
     (assert (accion pulsador_luz ?hab encender))
-	(printout t "Luz habitacion encendida" crlf) 
 )
 
 (defrule pareceVacia
     (Manejo_inteligente_luces ?hab)
     (ultimo_registro movimiento ?hab ?tiempo)    
     (ultima_desactivacion movimiento ?hab ?t)
-    (test(eq ?tiempo ?t))
+    (estadoLuz ?hab encendida)
+    (test(= ?tiempo ?t))
     (not (pareceVacia ?hab ?cualquiertiempo))
     =>
     (assert (pareceVacia ?hab ?t))
-	(printout t "La habitacion parece vacia a las " ?t crlf) 
+	(printout t "La habitacion" ?hab " parece vacia a las " ?t crlf) 
 )
 
 (defrule comprobacionTiempoVacia
     (Manejo_inteligente_luces ?hab)
     ?borrar <- (pareceVacia ?hab ?tmp)
-    (valor_registrado ?t movimiento ?hab off)
-    (test(>  (- ?t ?tmp ) 20))
+    (ultimo_registro movimiento ?hab ?tiempo)    
+    (valor_registrado ?tiempo movimiento ?hab off)
+    (test(>  (- ?tiempo ?tmp ) 20))
     =>
     (assert (accion pulsador_luz ?hab apagar))
     (retract ?borrar)
-	(printout t "Luz habitacion apagada" crlf) 
+
+)
+(defrule pareceVaciaPeroLlegaOn
+    (Manejo_inteligente_luces ?hab)
+    ?borrar <- (pareceVacia ?hab ?tmp)
+    (valor_registrado ?t movimiento ?hab on)
+    (test(>  (- ?t ?tmp ) 0))
+    (test(<  (- ?t ?tmp ) 20))
+    =>
+    (retract ?borrar)
+	(printout t "La habitacion no estaba vacia" crlf) 
+)
+
+
+
+(defrule llegaEncender
+    (accion pulsador_luz ?hab encender)
+    ?borrarAccion <- (accion pulsador_luz ?hab encender)
+    (not(estadoLuz ?hab encendida))
+    ?borrar <- (estadoLuz ?hab apagada)
+    =>
+    (retract ?borrar)    
+    (retract ?borrarAccion)
+    (printout t "Luz habitacion encendida" crlf) 
+    (assert(estadoLuz ?hab encendida))
+)
+(defrule llegaEncender1
+    (accion pulsador_luz ?hab encender)
+    ?borrarAccion <- (accion pulsador_luz ?hab encender)
+    (not(estadoLuz ?hab encendida))
+    (not(estadoLuz ?hab apagada))
+    =>
+    (retract ?borrarAccion)
+    (printout t "Luz habitacion encendida" crlf) 
+    (assert(estadoLuz ?hab encendida))
+)
+
+
+
+(defrule llegarApagar
+    (accion pulsador_luz ?hab apagar)
+    ?borrarAccion <- (accion pulsador_luz ?hab apagar)
+    (not(estadoLuz ?hab apagada))
+    (estadoLuz ?hab encendida)
+    ?borrar <- (estadoLuz ?hab encendida)
+    =>
+    (retract ?borrar)    
+    (retract ?borrarAccion)
+    (printout t "Luz habitacion apagada" crlf) 
+    (assert(estadoLuz ?hab apagada))
+)
+(defrule llegarApagar1
+    (accion pulsador_luz ?hab apagar)
+    ?borrarAccion <- (accion pulsador_luz ?hab apagar)
+    (not(estadoLuz ?hab encendida))
+    (not(estadoLuz ?hab apagada))
+    =>
+    (retract ?borrarAccion)
+    (printout t "Luz habitacion apagada" crlf) 
+    (assert(estadoLuz ?hab apagada))
+)
+(defrule llegaCambiar
+    (accion pulsador_luz ?hab cambiar)
+    ?borrarAccion <- (accion pulsador_luz ?hab cambiar)
+    ?borrar<-(estadoLuz ?hab apagada)
+    =>
+    (retract ?borrarAccion)
+    (retract ?borrar)
+    (printout t "Luz habitacion encendida" crlf) 
+    (assert(estadoLuz ?hab encendida))
+)
+(defrule llegaCambiar1
+    (accion pulsador_luz ?hab cambiar)
+    ?borrarAccion <- (accion pulsador_luz ?hab cambiar)
+    ?borrar<-(estadoLuz ?hab encendida)
+    =>
+    (retract ?borrarAccion)
+    (retract ?borrar)
+    (printout t "Luz habitacion apagada" crlf) 
+    (assert(estadoLuz ?hab apagada))
+)
+
+(deffacts pruebas
+(Manejo_inteligente_luces hab1)
+(valor movimiento hab1 on)
+
 )
