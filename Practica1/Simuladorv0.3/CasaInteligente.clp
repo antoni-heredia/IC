@@ -1,7 +1,8 @@
 
+;declaro las habitaciones que tengo
 (deffacts habitaciones
 (habitacion cocina)
-(habitacion dormitorio1)
+(habitacion despacho)
 (habitacion dormitorio2)
 (habitacion dormitorio3) 
 (habitacion dormitorio4)
@@ -12,13 +13,31 @@
 (habitacion comedor)
 (habitacion pasillo)
 )
+;Declaro las luminosidad minima de cada habitacion
+(deffacts luminosidades
+(lumMinimos  cocina 200)
+(lumMinimos  despacho 500)
+(lumMinimos  dormitorio2 300)
+(lumMinimos  dormitorio3 300) 
+(lumMinimos  dormitorio4 300)
+(lumMinimos  dormitorio5 300)
+(lumMinimos  banio 200)
+(lumMinimos  banioPrincipal 200)
+(lumMinimos  salon 300 )
+(lumMinimos  comedor 300)
+(lumMinimos  pasillo 200)
+)
+;los pasos de una habitaicon a otra en los que no hay puerta
 (deffacts paso_sin_puerta
 (
     paso salon_comedor comedor salon )
 )
+
+;aqui defino que puertas hay en cada habitacion, cada puerta tiene un nombre
+; y si dos habitaciones tienen la misma puerta es que hay un paso entre ellas(se usara una regla para deducirlo)
 (deffacts puertas_interiores
 (puerta p_cocina cocina)
-(puerta p_dormitorio1 dormitorio1)
+(puerta p_despacho despacho)
 (puerta p_dormitorio2 dormitorio2)
 (puerta p_dormitorio3 dormitorio3) 
 (puerta p_dormitorio4 dormitorio4)
@@ -27,7 +46,7 @@
 (puerta p_banioPrincipal banioPrincipal)
 (puerta p_comedor comedor)
 (puerta p_cocina pasillo)
-(puerta p_dormitorio1 pasillo)
+(puerta p_despacho pasillo)
 (puerta p_dormitorio2 pasillo)
 (puerta p_dormitorio3 pasillo)
 (puerta p_dormitorio4 pasillo)
@@ -37,15 +56,16 @@
 (puerta p_comedor pasillo)
 )
 
+;las puertas de salida de la casa
 (deffacts puerta_salida
 (puerta p_s_pasillo pasillo)
 )
 
 
-
+;las ventanas que tienen la casa
 (deffacts ventanas
 (ventanas v_cocina cocina)
-(ventanas v_dormitorio1 dormitorio1)
+(ventanas v_despacho despacho)
 (ventanas v_dormitorio2 dormitorio2)
 (ventanas v_dormitorio3 dormitorio3) 
 (ventanas v_dormitorio4 dormitorio4)
@@ -56,14 +76,17 @@
 (ventanas v_pasillo pasillo)
 )
 
+;esta regla indica si se pude pasar de una habitacion a otra cuando hay una puerta
+; se añade tanto el paso de "C" a "B" como de "B" a "C", porque lo encontrara dos veces
 (defrule posible_pasar
     (puerta ?nombre_puerta ?habitacion1)
     (puerta ?nombre_puerta ?habitacion2)
     (test (neq ?habitacion1 ?habitacion2 ))
-
     =>
     (assert (posible_pasar ?habitacion1 ?habitacion2))
 )
+
+;esta regla es la misma que la anterior pero para cuando hay un paso sin puerta
 (defrule posible_sin_puerta
     (paso ?nombre ?habitacion1 ?habitacion2)
     (test (neq ?habitacion1 ?habitacion2 ))
@@ -73,6 +96,7 @@
 
 )
 
+;cuando una habitacion solo tiene una puerta de entrada a ella
 (defrule necesario_paso
 
     (posible_pasar ?habitacion1 ?habitacion2)
@@ -81,6 +105,7 @@
     (assert (necesario_pasar ?habitacion1 ?habitacion2))
 )
 
+;cuando una habitacion tiene mas de una puerta de entrada
 (defrule mas_de_un_paso1
 
     (posible_pasar ?habitacion1 ?habitacion2)
@@ -89,7 +114,7 @@
     =>
     (assert (mas_de_un_paso ?habitacion1))
 )
-
+;tiene la misma funcion que la anterior, pero teniendo en cuenta que puede ser la segunda habitacion la que tenga mas de un paso
 (defrule mas_de_un_paso2
 
     (posible_pasar ?habitacion1 ?habitacion2)
@@ -98,7 +123,8 @@
     =>
     (assert (mas_de_un_paso ?habitacion2))
 )
-
+;Puede dar el caso en que se ejecute la regla "necesario_paso" antes que "mas_de_un_paso"
+; entonces borra de necesario_paso las que tenga mas de un paso
 (defrule borrar_pasos_necesarios
 
     (mas_de_un_paso ?habitacion)
@@ -107,6 +133,7 @@
     (retract ?Borrar)
 )
 
+;Una habitacion es interior cuando no tiene ventanas
 (defrule habitacion_interior
 
     (habitacion ?nombre)
@@ -115,8 +142,7 @@
     (assert (habitacion_interior ?nombre))
 )
 
-
-
+;Cuando llega un valor nuevo de los sensores, guardamos la hora actual que nos da el simulador
 (defrule registrar_valor "registra un nuevo valor que lleva de los senores"
     (valor ?tipo ?habitacion ?v )
     (hora_actual ?h)
@@ -127,7 +153,7 @@
     (assert(valor_registrado ?tmp ?tipo ?habitacion ?v))
 )
 
-
+;cambiamos el ultimo valor de un tipo por el que acaba de llegar
 (defrule registrar_ultimo "cuando llega un valor registrado, si ha llegado otro antes, lo borra y aniade uno nuevo a ultimoregistro"
     (valor_registrado ?tmp ?tipo ?habitacion ?v)
     ?ultimo <- (ultimo_registro ?tipo ?habitacion ?tiemp)
@@ -139,14 +165,15 @@
 
 )
 
-(defrule registrar_ultimo2 "igual que antes pero siendo el priemro que llega y no teniendo nada que borrar"
+;"igual que antes pero siendo el priemro que llega y no teniendo nada que borrar"
+(defrule registrar_ultimo2 
     (valor_registrado ?tmp ?tipo ?habitacion ?v)
     (not(ultimo_registro ?tipo ?habitacion ?temp))
     =>
     (assert(ultimo_registro ?tipo ?habitacion ?tmp))
 )
 
-
+;cuando llega un ON del sensor de movimiento y es la primera vez que ocurre
 (defrule registrar_activacion 
     (valor_registrado ?t ?tipo ?habitacion ?v)
     (test (eq ?tipo movimiento ))
@@ -157,7 +184,7 @@
 )
 
 
-
+;cuando llega un ON del sensor de movimiento y NO es la primera vez que ocurre
 (defrule registrar_activacion2
     (valor_registrado ?t ?tipo ?habitacion ?v)
     (test (eq ?tipo movimiento ))
@@ -173,6 +200,7 @@
     (assert(ultima_activacion movimiento ?habitacion ?t))
 )
 
+;cuando llega un OFF del sensor de movimiento y es la primera vez que ocurre
 (defrule registrar_desactivacion 
     (valor_registrado ?t ?tipo ?habitacion ?v)
     (test (eq ?tipo movimiento ))
@@ -182,6 +210,7 @@
     (assert (ultima_desactivacion movimiento ?habitacion ?t))
 )
 
+;cuando llega un OFF del sensor de movimiento y NO es la primera vez que ocurre
 (defrule registrar_desactivacion2
     (valor_registrado ?t ?tipo ?habitacion ?v)
     (test (eq ?tipo movimiento ))
@@ -197,6 +226,7 @@
     (assert(ultima_desactivacion movimiento ?habitacion ?t))
 )
 
+;cuando ya se guarda la informacion de un "valor" este se puede borrar
 (defrule borrar_todos_valor 
     (ultimo_registro ?tipo ?habitacion ?tmp)
     ?borrar <- (valor ?tipo ?habitacion ?v )
@@ -204,6 +234,7 @@
     (retract ?borrar)
 )
 
+;regla para obtener el informe de una habitacion, mostrando el primero con mayor tiempo
 (defrule obtenerInforme
     ?borrar <- (informe ?h)
     (valor_registrado ?tiempo ? ?h ?) 
@@ -214,7 +245,7 @@
 	(printout t "--------Informe habitacion " ?h "--------: " crlf) 
 	(printout t "Tiempo: " ?t   " Valor: " ?v" Tipo: " ?tipo crlf)
 )
-
+;Con esta regla iremos guardando el ultimo con mayor tiempo que todavia no se ha mostrado
 (defrule obtenerInforme2
 	?Borrar <- (registroimpreso ?tiempo ?tipo ?h ?valor) 
 	(valor_registrado ?t&~?tiempo ?tipo2 ?h ?valor2)
@@ -224,128 +255,100 @@
 	(assert (registroimpreso ?t2 ?tipo3 ?h ?valor3))
 	(printout t "Tiempo: " ?t2  " Valor: " ?valor3 " Tipo: " ?tipo3 crlf) 
 	)
-
+;borrar el ultimo registro impreso por pantalla que tengamos
 (defrule obtenerInforme3
 	?Borrar <- (registroimpreso ?t1 ?tipo ?h ?valor) ;
 =>
 	(retract ?Borrar)
 )
 
+;para encender una luz "automaticamente" por primera vez, para que se encienda automaticamente
+; debe haberse activado el sensor de movimiento de dicha habitacion, que este apagada la luz
+; y que el valor luminico sea menor que el minimo
 (defrule encenderLuzSiNoExiste
     (Manejo_inteligente_luces ?hab)
     (ultimo_registro movimiento ?hab ?tiempo)    
     (ultima_activacion movimiento ?hab ?t)
-    (not(estadoluz ?hab on))
-    (not(estadoluz ?hab off))
-
+    (not(valor_registrado ?testado estadoluz ?hab off))
+    (not(valor_registrado ?testado2 estadoluz ?hab on))
     (test(= ?tiempo ?t))
+
+    (ultimo_registro luminosidad ?hab ?tiempolum)    
+    (valor_registrado ?tiempolum luminosidad ?hab ?valor)
+    (lumMinimos ?hab ?minimo)
+    (test(< ?valor ?minimo))
     =>
     (assert (accion pulsador_luz ?hab encender))
 )
 
+;Cuando ya se ha activado mas veces la activacion automatica en esa habitacion, 
+;las condiciones para la activacion son las mismas que antes
 (defrule encenderLuzSiEstaoff
     (Manejo_inteligente_luces ?hab)
     (ultimo_registro movimiento ?hab ?tiempo)    
-    (ultima_activacion movimiento ?hab ?t)
-    (not(estadoluz ?hab on))
-    (estadoluz ?hab off)
+    (ultima_activacion movimiento ?hab ?t)    
+    (ultimo_registro estadoluz ?hab ?testado)
+    (valor_registrado ?testado2 estadoluz ?hab off)
+    (test(= ?testado ?testado2))
     (test(= ?tiempo ?t))
+
+    (ultimo_registro luminosidad ?hab ?tiempolum)    
+    (valor_registrado ?tiempolum luminosidad ?hab ?valor)
+    (lumMinimos ?hab ?minimo)
+    (test(< ?valor ?minimo))
     =>
     (assert (accion pulsador_luz ?hab encender))
 )
 
+;cuando una habitacion el sensor de movimiento envia off
+; puede ser que este vacia
 (defrule pareceVacia
     (Manejo_inteligente_luces ?hab)
+    
     (ultimo_registro movimiento ?hab ?tiempo)    
     (ultima_desactivacion movimiento ?hab ?t)
-    (estadoluz ?hab on)
     (test(= ?tiempo ?t))
+
+    (ultimo_registro estadoluz ?hab ?testado)
+    (valor_registrado ?testado2 estadoluz ?hab on)
+    (test(= ?testado ?testado2))
+    
     (not (pareceVacia ?hab ?cualquiertiempo))
+    
     =>
     (assert (pareceVacia ?hab ?t))
 )
 
+; si no se da la condicion de que se active el sensor de movimiento durante 
+;20 segundos se da por vacia la habitacion
 (defrule comprobacionTiempoVacia
     (Manejo_inteligente_luces ?hab)
+
     ?borrar <- (pareceVacia ?hab ?tmp)
-    (ultimo_registro movimiento ?hab ?tiempo)    
-    (valor_registrado ?tiempo movimiento ?hab off)
-    (test(>  (- ?tiempo ?tmp ) 20))
+    (hora_actual ?h)
+    (minutos_actual ?m)
+    (segundos_actual ?s)
+    (test(>  (- (totalsegundos  ?h ?m ?s ) ?tmp ) 20))
     =>
     (assert (accion pulsador_luz ?hab apagar))
     (retract ?borrar)
 
 )
+
+;Cuando la habitacion parecia vacia pero recibe un ON del sensor de movmiento
 (defrule pareceVaciaPeroLlegaOn
     (Manejo_inteligente_luces ?hab)
     ?borrar <- (pareceVacia ?hab ?tmp)
-    (valor_registrado ?t movimiento ?hab on)
-    (test(>  (- ?t ?tmp ) 0))
-    (test(<  (- ?t ?tmp ) 20))
+    (hora_actual ?h)
+    (minutos_actual ?m)
+    (segundos_actual ?s)
+    (test(>  (- (totalsegundos  ?h ?m ?s ) ?tmp ) 0))
+    (test(<  (- (totalsegundos  ?h ?m ?s ) ?tmp ) 20))
+    (ultimo_registro movimiento ?hab ?tiempo)    
+    (ultima_activacion movimiento ?hab ?t)
+    (test(= ?tiempo ?t))
     =>
     (retract ?borrar)
 )
 
-
-
-(defrule llegaEncender
-    (accion pulsador_luz ?hab encender)
-    ?borrarAccion <- (accion pulsador_luz ?hab encender)
-    (not(estadoluz ?hab on))
-    ?borrar <- (estadoluz ?hab off)
-    =>
-    (retract ?borrar)    
-    (retract ?borrarAccion)
-    (assert(estadoluz ?hab on))
-)
-(defrule llegaEncender1
-    (accion pulsador_luz ?hab encender)
-    ?borrarAccion <- (accion pulsador_luz ?hab encender)
-    (not(estadoluz ?hab on))
-    (not(estadoluz ?hab off))
-    =>
-    (retract ?borrarAccion)
-    (assert(estadoluz ?hab on))
-)
-
-
-
-(defrule llegarApagar
-    (accion pulsador_luz ?hab apagar)
-    ?borrarAccion <- (accion pulsador_luz ?hab apagar)
-    (not(estadoluz ?hab off))
-    (estadoluz ?hab on)
-    ?borrar <- (estadoluz ?hab on)
-    =>
-    (retract ?borrar)    
-    (retract ?borrarAccion)
-    (assert(estadoluz ?hab off))
-)
-(defrule llegarApagar1
-    (accion pulsador_luz ?hab apagar)
-    ?borrarAccion <- (accion pulsador_luz ?hab apagar)
-    (not(estadoluz ?hab on))
-    (not(estadoluz ?hab off))
-    =>
-    (retract ?borrarAccion)
-    (assert(estadoluz ?hab off))
-)
-(defrule llegaCambiar
-    (accion pulsador_luz ?hab cambiar)
-    ?borrarAccion <- (accion pulsador_luz ?hab cambiar)
-    ?borrar<-(estadoluz ?hab off)
-    =>
-    (retract ?borrarAccion)
-    (retract ?borrar)
-    (assert(estadoluz ?hab on))
-)
-(defrule llegaCambiar1
-    (accion pulsador_luz ?hab cambiar)
-    ?borrarAccion <- (accion pulsador_luz ?hab cambiar)
-    ?borrar<-(estadoluz ?hab on)
-    =>
-    (retract ?borrarAccion)
-    (retract ?borrar)
-    (assert(estadoluz ?hab off))
-)
 
