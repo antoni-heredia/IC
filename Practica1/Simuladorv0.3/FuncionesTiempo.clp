@@ -6,9 +6,9 @@
 
 ;;;; DEPENDERA DEL SISTEMA OPERATIVO (elegir comentando o descomentando a continuacion ;;;;;;;
 
-(defglobal ?*SO* = 1)              ;;; Windows (valor 1)    comentar si tu SO es linux o macos
+;(defglobal ?*SO* = 1)              ;;; Windows (valor 1)    comentar si tu SO es linux o macos
 
-;(defglobal ?*SO* = 0)             ;;; Linux o MacOs (valor 0)    descoemntar si tu SO es linux o macos
+(defglobal ?*SO* = 0)             ;;; Linux o MacOs (valor 0)    descoemntar si tu SO es linux o macos
 
 
 ;; Funcion que transforma ?h:?m:?s  en segundos transcurridos desde las 0h en punto ;;;
