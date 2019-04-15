@@ -17,10 +17,10 @@
 (deffacts luminosidades
 (lumMinimos  cocina 200)
 (lumMinimos  despacho 500)
-(lumMinimos  dormitorio2 300)
-(lumMinimos  dormitorio3 300) 
-(lumMinimos  dormitorio4 300)
-(lumMinimos  dormitorio5 300)
+(lumMinimos  dormitorio2 150)
+(lumMinimos  dormitorio3 150) 
+(lumMinimos  dormitorio4 150)
+(lumMinimos  dormitorio5 150)
 (lumMinimos  banio 200)
 (lumMinimos  banioPrincipal 200)
 (lumMinimos  salon 300 )
@@ -58,7 +58,7 @@
 
 ;las puertas de salida de la casa
 (deffacts puerta_salida
-(puerta p_s_pasillo pasillo)
+(puertaSalida p_s_pasillo pasillo)
 )
 
 
@@ -267,11 +267,12 @@
 ; y que el valor luminico sea menor que el minimo
 (defrule encenderLuzSiNoExiste
     (Manejo_inteligente_luces ?hab)
+
     (ultimo_registro movimiento ?hab ?tiempo)    
     (ultima_activacion movimiento ?hab ?t)
+    (test(= ?tiempo ?t))
     (not(valor_registrado ?testado estadoluz ?hab off))
     (not(valor_registrado ?testado2 estadoluz ?hab on))
-    (test(= ?tiempo ?t))
 
     (ultimo_registro luminosidad ?hab ?tiempolum)    
     (valor_registrado ?tiempolum luminosidad ?hab ?valor)
@@ -285,17 +286,19 @@
 ;las condiciones para la activacion son las mismas que antes
 (defrule encenderLuzSiEstaoff
     (Manejo_inteligente_luces ?hab)
-    (ultimo_registro movimiento ?hab ?tiempo)    
+   
     (ultima_activacion movimiento ?hab ?t)    
     (ultimo_registro estadoluz ?hab ?testado)
+
     (valor_registrado ?testado2 estadoluz ?hab off)
+
     (test(= ?testado ?testado2))
-    (test(= ?tiempo ?t))
 
     (ultimo_registro luminosidad ?hab ?tiempolum)    
     (valor_registrado ?tiempolum luminosidad ?hab ?valor)
     (lumMinimos ?hab ?minimo)
     (test(< ?valor ?minimo))
+
     =>
     (assert (accion pulsador_luz ?hab encender))
 )
@@ -314,7 +317,11 @@
     (test(= ?testado ?testado2))
     
     (not (pareceVacia ?hab ?cualquiertiempo))
-    
+
+    (hora_actual ?h)
+    (minutos_actual ?m)
+    (segundos_actual ?s)
+    (test(<=  (- (totalsegundos  ?h ?m ?s ) ?tiempo ) 3))
     =>
     (assert (pareceVacia ?hab ?t))
 )
@@ -323,12 +330,11 @@
 ;20 segundos se da por vacia la habitacion
 (defrule comprobacionTiempoVacia
     (Manejo_inteligente_luces ?hab)
-
     ?borrar <- (pareceVacia ?hab ?tmp)
     (hora_actual ?h)
     (minutos_actual ?m)
     (segundos_actual ?s)
-    (test(>  (- (totalsegundos  ?h ?m ?s ) ?tmp ) 20))
+    (test(>  (- (totalsegundos  ?h ?m ?s ) ?tmp ) 10))
     =>
     (assert (accion pulsador_luz ?hab apagar))
     (retract ?borrar)
@@ -343,7 +349,7 @@
     (minutos_actual ?m)
     (segundos_actual ?s)
     (test(>  (- (totalsegundos  ?h ?m ?s ) ?tmp ) 0))
-    (test(<  (- (totalsegundos  ?h ?m ?s ) ?tmp ) 20))
+    (test(<  (- (totalsegundos  ?h ?m ?s ) ?tmp ) 10))
     (ultimo_registro movimiento ?hab ?tiempo)    
     (ultima_activacion movimiento ?hab ?t)
     (test(= ?tiempo ?t))
@@ -351,4 +357,63 @@
     (retract ?borrar)
 )
 
+;si existe un posible paso de una habitacion a otra, se han activado los sensores de movimiento
+(defrule posiblePaso
+    ;si una habitacio esta en on
+    (Manejo_inteligente_luces ?hab)
+    
+    (ultimo_registro movimiento ?hab ?tiempo)    
+    (ultima_activacion movimiento ?hab ?t)
+    (test(= ?tiempo ?t))
+    ;y una contigua a pasado a on
+    
+    (ultimo_registro movimiento ?hab2 ?tiempoActivacion)    
+    (ultima_activacion movimiento ?hab2 ?tActivacion)
+    (test(= ?tiempoActivacion ?tActivacion))
 
+    (posible_pasar ?hab ?hab2)
+    =>
+    (printout t "--------Ha habido un posible paso "--------: " crlf) 
+    (assert (posiblepaso ?hab ?hab2 ?tActivacion))
+)
+
+;Si la habitacion parece vacia pero nadie ha salido de ella
+(defrule pareceVAciaPeroNoHayPaso
+    (Manejo_inteligente_luces ?hab)
+    ?borrar <- (pareceVacia ?hab ?tmp)
+    (hora_actual ?h)
+    (minutos_actual ?m)
+    (segundos_actual ?s)
+    (test(>  (- (totalsegundos  ?h ?m ?s ) ?tmp ) 0))
+    (test(>  (- (totalsegundos  ?h ?m ?s ) ?tmp ) 3))
+    (not (posiblepaso ?hab ?hab2 ?tiempoDelPaso))
+    (not (puertaSalida ?cualquiernombre ?hab))
+    =>
+    (retract ?borrar)
+)
+;Cuanod pasan mas de 3 segundos del posible paso, se elimina
+(defrule elminarposiblePaso
+    (hora_actual ?h)
+    (minutos_actual ?m)
+    (segundos_actual ?s)
+    ?borrar <- (posiblepaso ?hab ?hab2 ?tiempoDelPaso)
+    (test(>  (- (totalsegundos  ?h ?m ?s ) ?tiempoDelPaso ) 3))
+    =>
+    (retract ?borrar)
+)
+
+;Si la luz de la habitacion ahora es el doble que al principio se apagan las luces
+
+(defrule apagagarsiDoble
+    (Manejo_inteligente_luces ?hab)
+    
+    (ultimo_registro luminosidad ?hab ?tiempolum)    
+    (valor_registrado ?tiempolum luminosidad ?hab ?valor)
+    (lumMinimos ?hab ?minimo)
+    (test(> ?valor (* ?minimo 2))
+
+    (ultimo_registro estadoluz ?hab ?testado)
+    (valor_registrado ?testado estadoluz ?hab on)
+    =>
+    (assert (accion pulsador_luz ?hab apagar))
+)
