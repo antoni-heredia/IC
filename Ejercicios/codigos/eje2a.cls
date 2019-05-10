@@ -26,3 +26,5 @@
   )
   (printout t "El minimo es: " ?minimo crlf)
 )
+
+
