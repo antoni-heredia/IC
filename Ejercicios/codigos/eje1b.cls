@@ -5,7 +5,6 @@
     =>
     (assert(contado ?X $?a))
 	(assert(CONTADOR ?X  1 )) 
-	(printout t "Cantidad: " 1 crlf)
 )
 (defrule bajoDemanda2
     (hecho ?X $?a)
@@ -16,5 +15,4 @@
 	(retract ?borrar) 
     (assert(contado ?X $?a))
 	(assert(CONTADOR ?X  ?Total )) 
-	(printout t "Cantidad: " ?Total crlf)
 )
