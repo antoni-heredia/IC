@@ -1,4 +1,6 @@
 
+;Insertar buscarMinimo para ejecutar
+
 (deftemplate t (slot S (type NUMBER)))
 
 (deffacts varios
@@ -6,8 +8,7 @@
   (t (S 2))
   (t (S 35))
 )
-
-(defrule buscarMinimo
+(defrule minSdeT
   (buscarMinimo)
   =>
   (bind ?primero TRUE)

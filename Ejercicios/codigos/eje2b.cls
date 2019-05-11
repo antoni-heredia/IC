@@ -1,3 +1,5 @@
+;Insertar buscarMinimo para ejecutar
+
 (deftemplate Vector
 	(multifield t)
 )
