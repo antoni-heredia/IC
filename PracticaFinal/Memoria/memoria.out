@@ -1,0 +1,32 @@
+\BOOKMARK [1][-]{section.1}{Resumen de funcionamiento}{}% 1
+\BOOKMARK [2][-]{subsection.1.1}{La persona ha salido de la casa}{section.1}% 2
+\BOOKMARK [2][-]{subsection.1.2}{Sin movimiento durante las 3 ultimas horas}{section.1}% 3
+\BOOKMARK [2][-]{subsection.1.3}{Mas de 15 minutos levantada de noche.}{section.1}% 4
+\BOOKMARK [2][-]{subsection.1.4}{Estando mas de 20 minutos en el ba\361o}{section.1}% 5
+\BOOKMARK [2][-]{subsection.1.5}{La persona no ha ido al ba\361o en las \372ltimas 12 horas}{section.1}% 6
+\BOOKMARK [2][-]{subsection.1.6}{La asistenta no ha llegado}{section.1}% 7
+\BOOKMARK [2][-]{subsection.1.7}{Es tarde y la persona no se ha acostado}{section.1}% 8
+\BOOKMARK [1][-]{section.2}{Procedimiento seguido para verificar el sistema}{}% 9
+\BOOKMARK [1][-]{section.3}{Descripci\363n del sistema}{}% 10
+\BOOKMARK [2][-]{subsection.3.1}{Variables de entrada}{section.3}% 11
+\BOOKMARK [2][-]{subsection.3.2}{Variables de salida}{section.3}% 12
+\BOOKMARK [2][-]{subsection.3.3}{Conocimiento global del sistema}{section.3}% 13
+\BOOKMARK [2][-]{subsection.3.4}{Especificaci\363n del sistema}{section.3}% 14
+\BOOKMARK [3][-]{subsubsection.3.4.1}{personaSale}{subsection.3.4}% 15
+\BOOKMARK [3][-]{subsubsection.3.4.2}{personaEntra}{subsection.3.4}% 16
+\BOOKMARK [3][-]{subsubsection.3.4.3}{sinMovimientoDia}{subsection.3.4}% 17
+\BOOKMARK [3][-]{subsubsection.3.4.4}{eliminarAvisoDIA}{subsection.3.4}% 18
+\BOOKMARK [3][-]{subsubsection.3.4.5}{masunahoraAviso}{subsection.3.4}% 19
+\BOOKMARK [3][-]{subsubsection.3.4.6}{posibleDurmiendo}{subsection.3.4}% 20
+\BOOKMARK [3][-]{subsubsection.3.4.7}{noEstaDurmiendo}{subsection.3.4}% 21
+\BOOKMARK [3][-]{subsubsection.3.4.8}{estaDurmiendo}{subsection.3.4}% 22
+\BOOKMARK [3][-]{subsubsection.3.4.9}{seDespiertaPorLaNoche}{subsection.3.4}% 23
+\BOOKMARK [2][-]{subsection.3.5}{demsaidoTiempoDespierto}{section.3}% 24
+\BOOKMARK [3][-]{subsubsection.3.5.1}{entrabanio}{subsection.3.5}% 25
+\BOOKMARK [3][-]{subsubsection.3.5.2}{demasiadoTiempoBanio}{subsection.3.5}% 26
+\BOOKMARK [2][-]{subsection.3.6}{saleBanio}{section.3}% 27
+\BOOKMARK [3][-]{subsubsection.3.6.1}{demsaidoTiempoSinBanio}{subsection.3.6}% 28
+\BOOKMARK [3][-]{subsubsection.3.6.2}{estardeYnoDuerme}{subsection.3.6}% 29
+\BOOKMARK [3][-]{subsubsection.3.6.3}{llegaAsistenta}{subsection.3.6}% 30
+\BOOKMARK [3][-]{subsubsection.3.6.4}{asistentaSale}{subsection.3.6}% 31
+\BOOKMARK [1][-]{section.4}{Breve manual de uso}{}% 32

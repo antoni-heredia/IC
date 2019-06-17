@@ -1,0 +1,16 @@
+Para utilizar la simulacion para probar tu práctica:
+
+0.- Asegurate de utilizar solamente las funciones de tiempo que puedes encontrar en el fichero CicloControlado.clp. 
+Por ejemplo puedes utilizar los hechos (hora_actual ?h) (minutos_actual ?m) y (segundos_actual ?s) para recoger la hora en ese momento de la 
+simulación. Es decir si se está simulando las 12:51:23, en la base de hechos estará (hora_actual 12) (minutos_actual 51) y (segundos_actual 23).
+También puedes utilizar la variable global  ?*transcurrido* que guarda lo que devolvería la función (time) si se estuviera utilizando el sistema
+en tiempo real.
+
+1.- Editar el fichero SituacionInicial.txt con las opciones que te interesen de la simulacion (ver ejemplo adjuntado)
+2.- Colocar todos los ficheros en un mismo directorio, donde nos aseguremos que un usuario normal tiene permisos de escritura.
+3.- Utilizar el nombre CasaInteligente.clp para vuestro código de la práctica.
+4.- Desde clips cargar el fichero batch simulacion.bat, por ejemplo mediante el comando de clips  (batch "<path_to_directorio>/simulacion.bat")
+
+
+(5.- También se pueden cambiar los datos a simular, editando  DatosSimulados.txt, asegurandose de utilizar el formato allí utilizado,
+ cuya interpretacion resulta evidente.)

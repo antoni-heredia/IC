@@ -1,0 +1,33 @@
+\babel@toc {spanish}{}
+\contentsline {section}{\numberline {1}Resumen de funcionamiento}{3}{section.1}
+\contentsline {subsection}{\numberline {1.1}La persona ha salido de la casa}{3}{subsection.1.1}
+\contentsline {subsection}{\numberline {1.2}Sin movimiento durante las 3 ultimas horas}{3}{subsection.1.2}
+\contentsline {subsection}{\numberline {1.3}Mas de 15 minutos levantada de noche.}{4}{subsection.1.3}
+\contentsline {subsection}{\numberline {1.4}Estando mas de 20 minutos en el ba\IeC {\~n}o}{4}{subsection.1.4}
+\contentsline {subsection}{\numberline {1.5}La persona no ha ido al ba\IeC {\~n}o en las \IeC {\'u}ltimas 12 horas}{4}{subsection.1.5}
+\contentsline {subsection}{\numberline {1.6}La asistenta no ha llegado}{5}{subsection.1.6}
+\contentsline {subsection}{\numberline {1.7}Es tarde y la persona no se ha acostado}{5}{subsection.1.7}
+\contentsline {section}{\numberline {2}Procedimiento seguido para verificar el sistema}{5}{section.2}
+\contentsline {section}{\numberline {3}Descripci\IeC {\'o}n del sistema}{5}{section.3}
+\contentsline {subsection}{\numberline {3.1}Variables de entrada}{5}{subsection.3.1}
+\contentsline {subsection}{\numberline {3.2}Variables de salida}{6}{subsection.3.2}
+\contentsline {subsection}{\numberline {3.3}Conocimiento global del sistema}{6}{subsection.3.3}
+\contentsline {subsection}{\numberline {3.4}Especificaci\IeC {\'o}n del sistema}{6}{subsection.3.4}
+\contentsline {subsubsection}{\numberline {3.4.1}personaSale}{6}{subsubsection.3.4.1}
+\contentsline {subsubsection}{\numberline {3.4.2}personaEntra}{7}{subsubsection.3.4.2}
+\contentsline {subsubsection}{\numberline {3.4.3}sinMovimientoDia}{7}{subsubsection.3.4.3}
+\contentsline {subsubsection}{\numberline {3.4.4}eliminarAvisoDIA}{7}{subsubsection.3.4.4}
+\contentsline {subsubsection}{\numberline {3.4.5}masunahoraAviso}{7}{subsubsection.3.4.5}
+\contentsline {subsubsection}{\numberline {3.4.6}posibleDurmiendo}{7}{subsubsection.3.4.6}
+\contentsline {subsubsection}{\numberline {3.4.7}noEstaDurmiendo}{8}{subsubsection.3.4.7}
+\contentsline {subsubsection}{\numberline {3.4.8}estaDurmiendo}{8}{subsubsection.3.4.8}
+\contentsline {subsubsection}{\numberline {3.4.9}seDespiertaPorLaNoche}{8}{subsubsection.3.4.9}
+\contentsline {subsection}{\numberline {3.5}demsaidoTiempoDespierto}{8}{subsection.3.5}
+\contentsline {subsubsection}{\numberline {3.5.1}entrabanio}{8}{subsubsection.3.5.1}
+\contentsline {subsubsection}{\numberline {3.5.2}demasiadoTiempoBanio}{8}{subsubsection.3.5.2}
+\contentsline {subsection}{\numberline {3.6}saleBanio}{9}{subsection.3.6}
+\contentsline {subsubsection}{\numberline {3.6.1}demsaidoTiempoSinBanio}{9}{subsubsection.3.6.1}
+\contentsline {subsubsection}{\numberline {3.6.2}estardeYnoDuerme}{9}{subsubsection.3.6.2}
+\contentsline {subsubsection}{\numberline {3.6.3}llegaAsistenta}{9}{subsubsection.3.6.3}
+\contentsline {subsubsection}{\numberline {3.6.4}asistentaSale}{9}{subsubsection.3.6.4}
+\contentsline {section}{\numberline {4}Breve manual de uso}{9}{section.4}

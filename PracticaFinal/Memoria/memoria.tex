@@ -1,0 +1,158 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[spanish,es-tabla]{babel}
+
+\usepackage[utf8]{inputenc} % Escribir con acentos, ~n...
+\usepackage{eurosym} % s´ımbolo del euro
+\newcommand{\horrule}[1]{\rule{\linewidth}{#1}} % Create horizontal rule command with 1 argument of height
+\usepackage{listings}             % Incluye el paquete listing
+\usepackage[cache=false]{minted}
+\usepackage{graphicx, float} %para incluir imágenes y colocarlas
+\usepackage{epstopdf}
+
+\usepackage{hyperref}
+\hypersetup{
+	colorlinks,
+	citecolor=black,
+	filecolor=black,
+	linkcolor=black,
+	urlcolor=black
+}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{diagbox}
+
+\title{
+\normalfont \normalsize 
+\textsc{{\bf Ingeniería de Conocimiento (2018-2019)} \\ Grado en Ingeniería Informática \\ Universidad de Granada} \\ [25pt] % Your university, school and/or department name(s)
+\horrule{0.5pt} \\[0.4cm] % Thin top horizontal rule
+\huge Sistema de alerta de problemas para personas mayores que viven solas \\ % The assignment title
+\horrule{2pt} \\[0.5cm] % Thick bottom horizontal rule
+\includegraphics{images/logo.png}	
+}
+
+\author{Antonio Jesús Heredia Castillo\\xxxxxxxxx} % Nombre y apellidos
+
+\date{\normalsize\today} % Incluye la fecha actual
+
+%----------------------------------------------------------------------------------------
+% DOCUMENTO
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\maketitle % Muestra el Título
+\newpage %inserta un salto de página
+\tableofcontents % para generar el índice de contenidos
+\newpage
+
+\section{Resumen de funcionamiento}
+Nuestro sistema se basa en el análisis de la actividad diaria de una persona. Para el desarrollo de la practica hemos hecho uso del simulador usado en la Practica 1 para facilitar las pruebas que se puedan realizar sobre esta practica. El sistema registrara las horas en las que la persona duerme, sale de la casa, va al baño, etc.  El sistema esta pensado para una sola persona que vive sola, esta persona ademas recibe la visita de una asistenta de lunes a sábado de 10h a 14h. Esta persona vive en una casa como de la que adjuntamos el plano. En el sistema contamos con varios sensores. Tenemos el sensor de movimiento en cada habitación, estos sensores ya fueron usados en la practica anterior, ademas hemos añadido un sensor magnético en cada puerta. El sensor estara a ON cuando la puerta este abierta y por lo tanto estará a OFF cuando la puerta este cerrada. 
+\subsection{La persona ha salido de la casa}
+Para ver si la persona ha salido de casa tenemos que tener en cuenta dos cosas, la primera es que solo existe una puerta de salida de la casa, la otra es que esa puerta esta conectada con el pasillo. \\\\
+Por lo tanto para saber si la persona sale de casa comprobamos varios cosas. La primera es que el sensor de movimiento del pasillo este a ON \textbf{antes} de que el sensor magnetico de la puerta de salida se active. Ademas tenemos que asegurarnos que la persona esta dentro de casa. Ademas de que no sea una hora en la que el asistente pueda salir de casa, para no confundir uno con otro. \\\\
+
+Cuando la persona sale de casa se muestra un aviso y ademas se inserta un hecho en la base de hechos para saber que esta fuera y poder detectar cuando la persona entre.
+\subsection{Sin movimiento durante las 3 ultimas horas}
+Para esta funcionalidad el sistema hará uso de los sensores de movimiento que hay por toda la casa. Cuando un sensor de movimiento se activa, se añade un hecho en el que se dice en que momento se realizo el ultimo movimiento en \textbf{cualquier} lugar de la casa.
+\\\\
+Esto se comprueba siempre y cuando la diferencia entre el momento actual y el momento en el que se realizo el ultimo movimiento sea mayor a tres horas el sistema mandara un aviso. El sistema avisara siempre y cuando no este la persona fuera de casa. En caso de que la persona este fuera de casa no avisara. Evitando así excesivos avisos necesarios. Ademas de esto también tenemos en cuenta la hora que es. Ya que solo mandaremos aviso si es de día. Ya que entendemos que si es por la noche no hay movimiento ya que la persona estará durmiendo. 
+\subsection{Mas de 15 minutos levantada de noche.}
+Para poder realizar este aviso, tenemos varias condiciones, una poder saber si la persona se ha acostado (se explicara mas adelante en esta memoria). Otra cosa importante es saber cuando la persona se ha despertado. Para ello usaremos el sensor de movimiento con el que disponemos en el dormitorio.\\\\
+Para ver si lleva mas de 15 minutos despierto, la primera vez que se active cuando esta dormido, la persona pasara a ``pareceDespierto'' y si durante los siguientes 15 minutos posteriores cualquiera de los siguientes sensores que hay en la casa se siguen activando. Podremos asegurar que la persona esta despierta y por tanto pasado esos 15 minutos, podremos dar el aviso de que la persona lleva demasiado tiempo levantada. Si antes de esos 15 minutos los sensores no se activan, la persona se habrá vuelto a dormir o simplemente sera una activación por algún movimiento mientras dormía.
+\subsection{Estando mas de 20 minutos en el baño}
+Como lo necesitaremos en una de las siguientes situaciones pedidas, en esta usaremos un predicado para saber si la asistenta esta en la casa. En caso de que no esté, cuando la persona entra en el baño realizamos una marca de tiempo y si pasados 20 minutos no ha salido mandaremos una señal de advertencia, en caso de que salga antes eliminamos dicha marca de tiempo. 
+\subsection{La persona no ha ido al baño en las últimas 12 horas}
+Hacemos uso de reglas que hemos usado para la situación anterior. En este caso, cuando la persona entra al baño, marcaremos también  que este es el momento en el que entro por ultima vez al baño. Por lo tanto si han pasado 12 horas y no ha ido, podremos tener la regla que lo compruebe y de el aviso.
+\subsection{La asistenta no ha llegado}
+Para esto, lo que realizamos es comprobar a partir de las 10 horas, qu es cuando deberia de haber llegado la asistenta si ha llegado o no. Si ha llegado marcamos como que esta en la casa, que esto lo necesitamos en situaciones como la anterior. En caso de que no haya llegado se da un aviso. Cuando se va se quita la marca de que esta allí. 
+\subsection{Es tarde y la persona no se ha acostado}
+Cuando la persona se acuesta, generamos un predicado que lo indica, si para las doce de la noche no esta el predicado mandaremos el mensaje de que la persona no se a acostado. 
+\section{Procedimiento seguido para verificar el sistema}
+Para verificar el sistema he usado el simulador probando diferentes versiones, con diferentes acciones que realizaba la persona. \\\\
+He probado diferentes escenarios. He probado escenarios en diferentes días de la semana, simulando el día completo. Los escenarios incluían entre otros, días en los que la persona salia de casa, días en los que la asistenta no iba a la casa o días en los que la persona no iba al baño o iba varias veces. En todas las pruebas el sistema ofrecía una respuesta rápida, exceptuando cuando había un exceso de impresión por pantalla. 
+\section{Descripción del sistema}
+\subsection{Variables de entrada}
+Las variables de entrada del sistema son varias. La primera y mas importante posiblemente sea fecha y hora. \\\\Ademas de esto tenemos como entrada los distintos sensores de la casa. Para mi solución los dos que uso son el de movimiento y el magnético que tenemos colocado en las puertas. Aunque podríamos haber usado uno de luminosidad para saber cuando es de noche o cuando es de dia. Yo en mi sistema esto lo he hecho usando segun la hora del dia en la que estuvieramos.\\\\ La representación de las variables de entrada es la siguiente. 
+\begin{lstlisting}
+	(hora_actual ?hora)
+	(minutos_actual ?minutos)
+	(segundos_actual ?segundos)
+	(datosensor ?hora ?minutos ?segundos ?tipo ?habitacionoPuerta ?valor)
+\end{lstlisting}
+Estos datos de entrada los proporciona el simulador. Luego en el sistema hay funciones que nos transforma estos datos en predicados mas utiles para nosotros. 
+\subsection{Variables de salida}
+El sistema aporta una variable de salida por cada situación en la que debe de dar un aviso. Ademas el aviso se muestra por pantalla. 
+\begin{lstlisting}
+(personaSale ?t)
+(aviso_sinMovimiento  ?t)
+(aviso_despierto ?t)
+(demasiadoTiempoBanio ?t )
+(aviso_Demasiado_tiempo ?t)
+(noAcostado)
+(asistenta_no_llega ?t)
+\end{lstlisting}
+\subsection{Conocimiento global del sistema}
+El conocimiento inicial de sistema es la habitaciones que hay, las puerta entre habitaciones, los paso sin puerta y las puertas de salida al exterior. De ello se deduce las habitaciones que están conectadas entre si. 
+\subsection{Especificación del sistema}
+El sistema cuanta con varias reglas que tenia predefinidas de la practica anterior. Esas no las explicare, aunque es cierto que si hago uso de algunas de ellas. \\\\
+\subsubsection{personaSale}
+Para saber cuando una persona sale el sistema primero mirara si antes de abrirse la puerta la persona ha estado en el pasillo, ya que es la única conexión que existe con la puerta de salida. Ademas realizo comprobaciones en los tiempos de las utlimas activaciones sean correcto. Una vez que realizo esto inserto la hora a la que la persona ha salido de la casa y borro que la persona este en la casa.
+\subsubsection{personaEntra}
+No habiendo nadie en la casa, se abre primero la puerta y luego se activa el sensor de movimiento del pasillo. Esto indica que alguien ha entrado, siendo la persona la unica posibilidad. Insertamos que la persona entra y borramos que la persona esta fuera.
+\subsubsection{sinMovimientoDia}
+Siendo de dia y estandando la persona dentro, lleva demasiado tiempo sin moverse. Hacemos comprobaciones de cuando fue la ultima vez que un sensor de movimiento en la casa se activa y ademas comprobamos si la persona ha salido o no. Si se cumple todo esto se inserta se da un aviso por pantalla y ademas se inserta un aviso de movimiento con la hora a la que se hace.
+\subsubsection{eliminarAvisoDIA}
+La persona lleva demasiado tiempo sin moverse y se ha avisado, pero se activa de nuevo un sensor de movimiento. Entonces eliminamos el aviso que insertamos y se avisa de que la persona ya se ha movido. 
+\subsubsection{masunahoraAviso}
+Ademas del aviso inicial vamos a realizar un aviso periodico cada hora que la persona este sin moverse. Para poner en alerta a los familiares o quien este al cargo. Cada hora comprobamos si la persona sigue sin moverse, y se actualiza la ultima activación general que se ha realizado para saber así cuantas horas totales han pasado. 
+\subsubsection{posibleDurmiendo}
+Puede ser que la persona se haya ido a dormir, pero tambien puede ser que simplemente haya entrado al cuarto. Por eso tenemos esta regla, si la persona entra al cuarto despues de las 20h, se inserta un aviso de que puede ser que haya entrado a dormir.
+\subsubsection{noEstaDurmiendo}
+Si entro pero salido al poco rato, no dando tiempo a que fuera a dormir se elimina el aviso anterior. 
+\subsubsection{estaDurmiendo}
+En cambio si pasan mas de 20 minutos, damos por entendido que la persona esta durmiendo. Eliminamos el aviso de que puede ser que este durmiendo e insertamos que esta durmiendo y a la hora que lo hace.
+\subsubsection{seDespiertaPorLaNoche}
+En caso de que los sensores de movimiento se activen una vez que la persona esta durmiendo, podemos pensar que se ha despertado o que simplemente se ha movido un poco. Por eso si ocurre esto insertamos la hora a la que se ha producido el movimiento pero no avisamos. 
+\subsection{demsaidoTiempoDespierto}
+Pero en cambio si lleva mas de 15 minutos los sensores de movimiento activos, podemos deducir que lleva demasiado tiempo despierto y por lo tanto avisaremos, ademas de inserta a que hora se dio el aviso. 
+\subsubsection{entrabanio}
+La persona ha entrado al baño y como esto es importante para varias situaciones en las que hay que avisar insertamos a que hora a entrado al baño. Para ver que ha entrado al baño, usamos el mismo metodo que para ver cuando sale de la casa, primero se tiene que activar el sensor del pasillo y luego que se habra la puerta. Cuando esto pasa añadimos varias cosas a la base de hechos. Primero anotamos a la hora a la que ha entrado para saber luego cuanto tiempo lleva dentro y ademas tambien modificamos la ultimavez que entro al baño para avisar cuando lleve demasiado tiempo sin ir.
+\subsubsection{demasiadoTiempoBanio}
+Como sabemos a la hora que entro al baño, simplemente vemos la diferencia de tiempo y si es mayor a 15 minutos se avisa. Ademas de eso comprobamos que no este la asistenta. Si las condiciones se cumplen damos el aviso de que lleva demasiado tiempo dentro.
+\subsection{saleBanio}
+La persona sale del baño. La persona estaba en el baño y se sale de el. Eliminamos todos los avisos anteriores que puedieran existir y el hecho de que la persona estuviera en el baño, evitando asi que salte el aviso en el futuro.
+\subsubsection{demsaidoTiempoSinBanio}
+La persona lleva demasiado tiempo sin ir al baño. Simplemente comprobamos el tiempo de la ultima vez que fue al baño y vemos si han pasado mas del tiempo establecido en el enunciado. Si es asi damos el aviso de alerta.
+\subsubsection{estardeYnoDuerme}
+Es mas de las 11 de la noche y la persona no se ha acostado. Damos un aviso  de alerta. 
+\subsubsection{llegaAsistenta}
+Anotamos a la hora a la que ha llegado la asistenta y que ha llegado para que no salte el aviso de que deberia haber llegado. Para saber que la asistenta ha llegado tenemos que tener en cuenta que la persona este dentro y que el dia sea de lunes a sábado. Insertaremos un hecho de a la hora que ha lleagdo la asistenta. 
+\subsubsection{asistentaSale}
+La asistenta ha acabado su jornada y se va de la casa. Esta regla es utilizada para saber cuando se deben dar algunos aviso ya que la asistenta no esta en casa.
+\section{Breve manual de uso}
+Aunque mi sistema esta pensado para ser usado con el simulador de la practica uno, se puede usar sin problema añadiendo nosotros los hechos de forma manual.\\\\
+Tenemos que declarar al principio varias cosas para que despues el sistema funcione de forma correcta. Lo primero es indicar la ultima vez que fue al baño y que la persona esta dentro.
+\begin{lstlisting}
+	(ultimaVezBanio 0)
+	(personaEntra)
+\end{lstlisting}
+Ademas de esto, para que funcione correctamente, como el simulador no tenia en cuenta el dia de la semana que estabamos, tambien tenemos que añadirlo nosotros manualmente. Insertaremos en el fichero de los datos simulados lo siguiente:
+\begin{lstlisting}
+	(dia_actual lunes)
+\end{lstlisting}
+Todo lo demas que pongamos son los datos de los sensores que queremos simular. Por ejemplo, para simular que la persona entra y sale del baño, pondriaoms lo siguiente:
+\begin{lstlisting}
+;Entra al banio
+
+(datosensor 10 10 1 movimiento pasillo on)
+(datosensor 10 10 3 magnetico p_banio on)
+(datosensor 10 10 4 movimiento pasillo off)
+(datosensor 10 10 4 magnetico p_banio off)
+
+;Sale banio(sin aviso)
+(datosensor 10 31 2 movimiento pasillo on)
+(datosensor 10 31 2 magnetico p_banio on)
+(datosensor 10 31 3 magnetico p_banio off)
+(datosensor 10 31 20 movimiento pasillo off)
+\end{lstlisting}
+\end{document}

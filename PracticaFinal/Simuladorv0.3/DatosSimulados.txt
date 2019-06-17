@@ -1,0 +1,71 @@
+(bombilla salon 460)
+(bombilla cocina 270)
+(bombilla pasillo 230)
+(luminosidad salon 32)
+(luminosidad cocina 19)
+(luminosidad pasillo 12)
+
+
+
+
+(manejoluces cocina)
+(manejoluces pasillo)
+(ultimaVezBanio 0)
+
+
+(dia_actual lunes)
+(personaEntra)
+
+
+(datosensor 10 0 0 movimiento pasillo on)
+(datosensor 10 0 16 movimiento pasillo off)
+
+;Entra al baño
+
+(datosensor 10 10 1 movimiento pasillo on)
+(datosensor 10 10 3 magnetico p_banio on)
+(datosensor 10 10 4 movimiento pasillo off)
+(datosensor 10 10 4 magnetico p_banio off)
+
+;Sale baño(sin aviso)
+(datosensor 10 31 2 movimiento pasillo on)
+(datosensor 10 31 2 magnetico p_banio on)
+(datosensor 10 31 3 magnetico p_banio off)
+(datosensor 10 31 20 movimiento pasillo off)
+
+
+;Asistente Entra
+(datosensor 12 0 2 movimiento pasillo on)
+(datosensor 12 0 2 magnetico p_s_pasillo on)
+(datosensor 12 0 3 magnetico p_s_pasillo off)
+(datosensor 12 0 20 movimiento pasillo off)
+
+;Asistente Sale
+(datosensor 14 0 1 movimiento pasillo on)
+(datosensor 14 0 3 magnetico p_s_pasillo on)
+(datosensor 14 0 4 movimiento pasillo off)
+(datosensor 14 0 4 magnetico p_s_pasillo off)
+
+
+
+;Persona Sale
+(datosensor 15 0 1 movimiento pasillo on)
+(datosensor 15 0 3 magnetico p_s_pasillo on)
+(datosensor 15 0 4 movimiento pasillo off)
+(datosensor 15 0 4 magnetico p_s_pasillo off)
+
+;Persona Entra
+(datosensor 16 0 2 movimiento pasillo on)
+(datosensor 16 0 2 magnetico p_s_pasillo on)
+(datosensor 16 0 3 magnetico p_s_pasillo off)
+(datosensor 16 0 20 movimiento pasillo off)
+
+
+(datosensor 16 0 4 movimiento salon on)
+(datosensor 16 0 5 movimiento salon off)
+
+(datosensor 24 0 4 movimiento dormitorio2 on)
+(datosensor 24 0 5 movimiento dormitorio2 off)
+
+(datosensor 24 30 4 movimiento dormitorio2 on)
+(datosensor 24 30 5 movimiento dormitorio2 off)
